@@ -24,8 +24,10 @@ const mealTypeSelect = document.getElementById('mealType');
 const proteinSelect = document.getElementById('protein');
 const cuisineSelect = document.getElementById('cuisine');
 const cookTimeSelect = document.getElementById('cookTime');
+const filterSelects = [mealTypeSelect, proteinSelect, cuisineSelect, cookTimeSelect];
 
 // Daily recipe elements
+const dailyContent = document.getElementById('dailyContent');
 const dailyTitle = document.getElementById('dailyTitle');
 const dailyDescription = document.getElementById('dailyDescription');
 const dailyCta = document.getElementById('dailyCta');
@@ -38,9 +40,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Setup event listeners
 function setupEventListeners() {
-    findBtn.addEventListener('click', findRecipe);
-    randomBtn.addEventListener('click', randomRecipe);
+    // randomBtn.addEventListener('click', randomRecipe); // Keep if you still want the random button
     shuffleBtn.addEventListener('click', showAnotherRecipe);
+
+    // ✨ IMPROVEMENT: Add event listeners for instant filtering
+    filterSelects.forEach(select => {
+        select.addEventListener('change', generateRecipes);
+    });
+
+    // If you keep the Find button, you can remove the instant filtering above and use this:
+    // findBtn.addEventListener('click', findRecipe); 
+}
+
+
+// ✨ NEW FUNCTION: Reusable Image URL Extractor
+function getImageUrl(recipe) {
+    const imageFields = ['Image', 'Photo', 'Image URL', 'Photos', 'Images', 'Picture'];
+    for (const field of imageFields) {
+        if (recipe[field]) {
+            // Check if it's an Airtable attachment array
+            if (Array.isArray(recipe[field]) && recipe[field].length > 0) {
+                return recipe[field][0].url || recipe[field][0].thumbnails?.large?.url || '';
+            }
+            // Check if it's a direct URL string
+            else if (typeof recipe[field] === 'string') {
+                return recipe[field];
+            }
+        }
+    }
+    return ''; // Return empty string if no image found
 }
 
 // Load recipes from Airtable
@@ -76,11 +104,6 @@ async function loadRecipes() {
         
         console.log(`Loaded ${allRecipes.length} recipes from Airtable`);
         
-        // Debug: Log first recipe to check image field structure
-        if (allRecipes.length > 0) {
-            console.log('Sample recipe data:', allRecipes[0]);
-        }
-        
         // Set up daily recipe
         setupDailyRecipe();
         
@@ -92,23 +115,66 @@ async function loadRecipes() {
     }
 }
 
+
+// 🐛 FIX: Implement findRecipe (if you keep the "Find Recipe" button)
+/* function findRecipe() {
+    // Meal type is mandatory for finding a specific recipe if you use the button
+    if (!mealTypeSelect.value) {
+        alert('Please select at least a meal type to find recipes.');
+        return;
+    }
+    generateRecipes();
+}
+*/
+
+
+// 🐛 FIX: Implement randomRecipe 
+// If you want to keep the "Random Recipe" button functional, uncomment this and the listener in setupEventListeners
+/*
+function randomRecipe() {
+    clearFilters(); // Reset dropdowns
+    
+    if (allRecipes.length === 0) {
+        showNoResults();
+        return;
+    }
+
+    // Select one random recipe from all loaded recipes
+    const randomIndex = Math.floor(Math.random() * allRecipes.length);
+    filteredRecipes = [allRecipes[randomIndex]];
+    
+    // Display the single random recipe
+    displayResults();
+}
+*/
+
+
+// 🐛 FIX: Implement showAnotherRecipe
+function showAnotherRecipe() {
+    // The displayResults function already shuffles recipes, so we just call it again.
+    if (filteredRecipes.length > 1) {
+        displayResults();
+    }
+}
+
+
 // Generate/filter recipes based on selected criteria
 function generateRecipes() {
     const mealType = mealTypeSelect.value;
     const protein = proteinSelect.value;
     const cuisine = cuisineSelect.value;
     const cookTime = cookTimeSelect.value;
-    
-    // Meal type is mandatory
-    if (!mealType) {
-        alert('Please select a meal type to generate recipes.');
+
+    // ✨ IMPROVEMENT: If all filters are empty, reset to the empty state
+    if (!mealType && !protein && !cuisine && !cookTime) {
+        clearFilters();
         return;
     }
     
     // Filter recipes based on selected criteria
     filteredRecipes = allRecipes.filter(recipe => {
         return (
-            (recipe['Meal Type'] === mealType) &&
+            (!mealType || recipe['Meal Type'] === mealType) &&
             (!protein || recipe['Protein'] === protein) &&
             (!cuisine || recipe['Cuisine'] === cuisine) &&
             (!cookTime || recipe['Cook Time'] === cookTime)
@@ -157,24 +223,8 @@ function createRecipeCard(recipe) {
     const description = recipe['Description'] || recipe['Short Description'] || 'Delicious recipe to try!';
     const url = recipe['URL'] || recipe['Link'] || '#';
     
-    // Try multiple possible image field names and handle Airtable attachment format
-    let imageUrl = '';
-    const imageFields = ['Image', 'Photo', 'Image URL', 'Photos', 'Images', 'Picture'];
-    
-    for (const field of imageFields) {
-        if (recipe[field]) {
-            // Check if it's an Airtable attachment array
-            if (Array.isArray(recipe[field]) && recipe[field].length > 0) {
-                imageUrl = recipe[field][0].url || recipe[field][0].thumbnails?.large?.url || '';
-                break;
-            }
-            // Check if it's a direct URL string
-            else if (typeof recipe[field] === 'string') {
-                imageUrl = recipe[field];
-                break;
-            }
-        }
-    }
+    // ✨ IMPROVEMENT: Use the getImageUrl function
+    const imageUrl = getImageUrl(recipe);
     
     const mealType = recipe['Meal Type'] || '';
     const protein = recipe['Protein'] || '';
@@ -216,25 +266,37 @@ function showNoResults() {
     recipeResults.style.display = 'block';
     resultsCount.textContent = '0 recipes found';
     
+    // ✨ IMPROVEMENT: Add a Clear Filters button to the no results message
     recipeGrid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
             <div style="font-size: 48px; margin-bottom: 16px;">😔</div>
             <h3 style="font-size: 20px; margin-bottom: 8px;">No recipes found</h3>
-            <p style="color: #6b7280;">Try different filter combinations to find your perfect recipe.</p>
+            <p style="color: #6b7280; margin-bottom: 20px;">Try different filter combinations to find your perfect recipe.</p>
+            <button id="clearFiltersBtn" class="shuffle-btn">🔄 Clear Filters</button>
         </div>
     `;
+
+    // Add event listener to the new button
+    document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
 }
 
-// Shuffle current results
-function shuffleResults() {
-    if (filteredRecipes.length > 0) {
-        displayResults();
-    }
-}
+// Shuffle current results (Replaced by showAnotherRecipe which calls displayResults)
+// function shuffleResults() {
+//     if (filteredRecipes.length > 0) {
+//         displayResults();
+//     }
+// }
 
 // Setup daily recipe
 function setupDailyRecipe() {
-    if (allRecipes.length === 0) return;
+    // ✨ IMPROVEMENT: Remove loading shimmer once data is ready
+    dailyContent.classList.remove('loading-shimmer');
+
+    if (allRecipes.length === 0) {
+        dailyTitle.textContent = 'Could not load recipe';
+        dailyDescription.textContent = 'Please check back later!';
+        return;
+    }
     
     // Use date to consistently pick the same recipe each day
     const today = new Date();
@@ -246,25 +308,9 @@ function setupDailyRecipe() {
     const name = dailyRecipe['Recipe Name'] || dailyRecipe['Name'] || 'Today\'s Special Recipe';
     const description = dailyRecipe['Description'] || dailyRecipe['Short Description'] || 'A wonderful recipe to brighten your day!';
     const url = dailyRecipe['URL'] || dailyRecipe['Link'] || '#';
-    
-    // Try multiple possible image field names and handle Airtable attachment format
-    let imageUrl = '';
-    const imageFields = ['Image', 'Photo', 'Image URL', 'Photos', 'Images', 'Picture'];
-    
-    for (const field of imageFields) {
-        if (dailyRecipe[field]) {
-            // Check if it's an Airtable attachment array
-            if (Array.isArray(dailyRecipe[field]) && dailyRecipe[field].length > 0) {
-                imageUrl = dailyRecipe[field][0].url || dailyRecipe[field][0].thumbnails?.large?.url || '';
-                break;
-            }
-            // Check if it's a direct URL string
-            else if (typeof dailyRecipe[field] === 'string') {
-                imageUrl = dailyRecipe[field];
-                break;
-            }
-        }
-    }
+
+    // ✨ IMPROVEMENT: Use the getImageUrl function
+    const imageUrl = getImageUrl(dailyRecipe);
     
     dailyTitle.textContent = name;
     dailyDescription.textContent = description;
@@ -322,20 +368,17 @@ function clearFilters() {
     const emptyMessage = emptyState.querySelector('.empty-message');
     emptyMessage.innerHTML = `
         <h3>Discover Your Perfect Recipe</h3>
-        <p>Select a meal type and click "Find Recipe" for filtered results, or "Random Recipe" for any recipe</p>
+        <p>Select your preferences using the filters above to find your next delicious meal!</p>
     `;
     
     const emptyIcon = emptyState.querySelector('.icon-placeholder');
     emptyIcon.textContent = '🎲';
+
+    filteredRecipes = []; // Clear the filtered list
 }
 
 // Optional: Add keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    // Press Enter to find recipes
-    if (e.key === 'Enter' && document.activeElement.tagName === 'SELECT') {
-        findRecipe();
-    }
-    
     // Press Escape to clear filters
     if (e.key === 'Escape') {
         clearFilters();
