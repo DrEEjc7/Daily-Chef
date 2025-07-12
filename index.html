@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo-section">
@@ -21,11 +22,13 @@
     </header>
     
     <div class="container">
+        <!-- Hero Section -->
         <section class="hero-section">
             <h1 class="hero-title">Recipe Generator</h1>
             <p class="hero-subtitle">Discover personalized recipes that match your taste preferences and dietary needs</p>
         </section>
         
+        <!-- Recipe Generator Section -->
         <section class="generator-section">
             <h2 class="section-title">Find Your Perfect Recipe</h2>
             
@@ -90,6 +93,12 @@
                 </div>
             </div>
             
+            <div class="button-group">
+                <button class="find-btn" id="findBtn">Find Recipe</button>
+                <button class="random-btn" id="randomBtn">Random Recipe</button>
+            </div>
+            
+            <!-- Results Section -->
             <div class="results-section" id="resultsSection">
                 <div class="empty-state" id="emptyState">
                     <div class="empty-icon">
@@ -97,35 +106,42 @@
                     </div>
                     <div class="empty-message">
                         <h3>Discover Your Perfect Recipe</h3>
-                        <p>Select your preferences using the filters above to find your next delicious meal!</p>
+                        <p>Select a meal type and click "Find Recipe" for filtered results, or "Random Recipe" for any recipe</p>
                     </div>
                 </div>
                 
+                <!-- Recipe Results (hidden initially) -->
                 <div class="recipe-results" id="recipeResults" style="display: none;">
                     <div class="results-header">
                         <h3 id="resultsCount">0 recipes found</h3>
-                        <button class="shuffle-btn" id="shuffleBtn">🎲 Shuffle Results</button>
+                        <button class="shuffle-btn" id="shuffleBtn">🎲 Another Recipe</button>
                     </div>
                     <div class="recipe-grid" id="recipeGrid">
-                        </div>
+                        <!-- Recipe cards will be inserted here -->
+                    </div>
                 </div>
             </div>
         </section>
         
+        <!-- Daily Recipe Banner -->
         <section class="daily-recipe">
             <h2 class="banner-title">Today's Featured Recipe</h2>
-            <div class="daily-content loading-shimmer" id="dailyContent">
+            <div class="daily-content" id="dailyContent">
                 <div class="daily-image">
-                    </div>
+                    <div class="recipe-placeholder">📸</div>
+                </div>
                 <div class="daily-info">
-                    <h3 id="dailyTitle"></h3>
-                    <p class="daily-description" id="dailyDescription"></p>
-                    <a href="#" class="daily-cta" id="dailyCta" style="display: inline-block;">Cook Today's Recipe</a>
+                    <h3 id="dailyTitle">Loading today's recipe...</h3>
+                    <p class="daily-description" id="dailyDescription">
+                        Discovering today's featured recipe from our collection...
+                    </p>
+                    <a href="#" class="daily-cta" id="dailyCta">Cook Today's Recipe</a>
                 </div>
             </div>
         </section>
     </div>
 
+    <!-- Loading Spinner -->
     <div class="loading-spinner" id="loadingSpinner" style="display: none;">
         <div class="spinner"></div>
         <p>Loading recipes...</p>
