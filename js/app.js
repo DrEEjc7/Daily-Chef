@@ -10,7 +10,8 @@ let allRecipes = [];
 let filteredRecipes = [];
 
 // DOM Elements
-const generateBtn = document.getElementById('generateBtn');
+const findBtn = document.getElementById('findBtn');
+const randomBtn = document.getElementById('randomBtn');
 const shuffleBtn = document.getElementById('shuffleBtn');
 const emptyState = document.getElementById('emptyState');
 const recipeResults = document.getElementById('recipeResults');
@@ -37,17 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Setup event listeners
 function setupEventListeners() {
-    generateBtn.addEventListener('click', generateRecipes);
-    shuffleBtn.addEventListener('click', shuffleResults);
-    
-    // Optional: Filter on change for real-time filtering
-    // Uncomment these lines if you want filtering to happen as soon as user selects
-    /*
-    mealTypeSelect.addEventListener('change', generateRecipes);
-    proteinSelect.addEventListener('change', generateRecipes);
-    cuisineSelect.addEventListener('change', generateRecipes);
-    cookTimeSelect.addEventListener('change', generateRecipes);
-    */
+    findBtn.addEventListener('click', findRecipe);
+    randomBtn.addEventListener('click', randomRecipe);
+    shuffleBtn.addEventListener('click', showAnotherRecipe);
 }
 
 // Load recipes from Airtable
@@ -82,6 +75,11 @@ async function loadRecipes() {
         }));
         
         console.log(`Loaded ${allRecipes.length} recipes from Airtable`);
+        
+        // Debug: Log first recipe to check image field structure
+        if (allRecipes.length > 0) {
+            console.log('Sample recipe data:', allRecipes[0]);
+        }
         
         // Set up daily recipe
         setupDailyRecipe();
@@ -158,7 +156,26 @@ function createRecipeCard(recipe) {
     const name = recipe['Recipe Name'] || recipe['Name'] || 'Untitled Recipe';
     const description = recipe['Description'] || recipe['Short Description'] || 'Delicious recipe to try!';
     const url = recipe['URL'] || recipe['Link'] || '#';
-    const imageUrl = recipe['Image'] || recipe['Photo'] || recipe['Image URL'] || '';
+    
+    // Try multiple possible image field names and handle Airtable attachment format
+    let imageUrl = '';
+    const imageFields = ['Image', 'Photo', 'Image URL', 'Photos', 'Images', 'Picture'];
+    
+    for (const field of imageFields) {
+        if (recipe[field]) {
+            // Check if it's an Airtable attachment array
+            if (Array.isArray(recipe[field]) && recipe[field].length > 0) {
+                imageUrl = recipe[field][0].url || recipe[field][0].thumbnails?.large?.url || '';
+                break;
+            }
+            // Check if it's a direct URL string
+            else if (typeof recipe[field] === 'string') {
+                imageUrl = recipe[field];
+                break;
+            }
+        }
+    }
+    
     const mealType = recipe['Meal Type'] || '';
     const protein = recipe['Protein'] || '';
     const cuisine = recipe['Cuisine'] || '';
@@ -229,7 +246,25 @@ function setupDailyRecipe() {
     const name = dailyRecipe['Recipe Name'] || dailyRecipe['Name'] || 'Today\'s Special Recipe';
     const description = dailyRecipe['Description'] || dailyRecipe['Short Description'] || 'A wonderful recipe to brighten your day!';
     const url = dailyRecipe['URL'] || dailyRecipe['Link'] || '#';
-    const imageUrl = dailyRecipe['Image'] || dailyRecipe['Photo'] || dailyRecipe['Image URL'] || '';
+    
+    // Try multiple possible image field names and handle Airtable attachment format
+    let imageUrl = '';
+    const imageFields = ['Image', 'Photo', 'Image URL', 'Photos', 'Images', 'Picture'];
+    
+    for (const field of imageFields) {
+        if (dailyRecipe[field]) {
+            // Check if it's an Airtable attachment array
+            if (Array.isArray(dailyRecipe[field]) && dailyRecipe[field].length > 0) {
+                imageUrl = dailyRecipe[field][0].url || dailyRecipe[field][0].thumbnails?.large?.url || '';
+                break;
+            }
+            // Check if it's a direct URL string
+            else if (typeof dailyRecipe[field] === 'string') {
+                imageUrl = dailyRecipe[field];
+                break;
+            }
+        }
+    }
     
     dailyTitle.textContent = name;
     dailyDescription.textContent = description;
@@ -286,8 +321,8 @@ function clearFilters() {
     // Reset empty state
     const emptyMessage = emptyState.querySelector('.empty-message');
     emptyMessage.innerHTML = `
-        <h3>Generate Your Perfect Recipe</h3>
-        <p>Select a meal type and your preferences above to discover your next meal</p>
+        <h3>Discover Your Perfect Recipe</h3>
+        <p>Select a meal type and click "Find Recipe" for filtered results, or "Random Recipe" for any recipe</p>
     `;
     
     const emptyIcon = emptyState.querySelector('.icon-placeholder');
@@ -296,9 +331,9 @@ function clearFilters() {
 
 // Optional: Add keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    // Press Enter to generate recipes
+    // Press Enter to find recipes
     if (e.key === 'Enter' && document.activeElement.tagName === 'SELECT') {
-        generateRecipes();
+        findRecipe();
     }
     
     // Press Escape to clear filters
