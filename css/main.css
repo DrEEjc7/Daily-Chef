@@ -172,8 +172,16 @@ body {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Generate Button */
-.generate-btn {
+/* Button Group */
+.button-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.find-btn, .random-btn {
     background: #1a1a1a;
     color: white;
     border: none;
@@ -183,19 +191,26 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: block;
-    margin: 0 auto;
+    min-width: 150px;
 }
 
-.generate-btn:hover {
+.find-btn:hover, .random-btn:hover {
     background: #333;
     transform: translateY(-1px);
 }
 
-.generate-btn:disabled {
+.find-btn:disabled, .random-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
     transform: none;
+}
+
+.random-btn {
+    background: #6b7280;
+}
+
+.random-btn:hover {
+    background: #4b5563;
 }
 
 /* Results Section */
