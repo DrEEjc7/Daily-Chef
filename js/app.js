@@ -101,16 +101,16 @@ function generateRecipes() {
     const cuisine = cuisineSelect.value;
     const cookTime = cookTimeSelect.value;
     
-    // Check if any filters are selected
-    if (!mealType && !protein && !cuisine && !cookTime) {
-        alert('Please select at least one filter to generate recipes.');
+    // Meal type is mandatory
+    if (!mealType) {
+        alert('Please select a meal type to generate recipes.');
         return;
     }
     
     // Filter recipes based on selected criteria
     filteredRecipes = allRecipes.filter(recipe => {
         return (
-            (!mealType || recipe['Meal Type'] === mealType) &&
+            (recipe['Meal Type'] === mealType) &&
             (!protein || recipe['Protein'] === protein) &&
             (!cuisine || recipe['Cuisine'] === cuisine) &&
             (!cookTime || recipe['Cook Time'] === cookTime)
@@ -158,14 +158,24 @@ function createRecipeCard(recipe) {
     const name = recipe['Recipe Name'] || recipe['Name'] || 'Untitled Recipe';
     const description = recipe['Description'] || recipe['Short Description'] || 'Delicious recipe to try!';
     const url = recipe['URL'] || recipe['Link'] || '#';
+    const imageUrl = recipe['Image'] || recipe['Photo'] || recipe['Image URL'] || '';
     const mealType = recipe['Meal Type'] || '';
     const protein = recipe['Protein'] || '';
     const cuisine = recipe['Cuisine'] || '';
     const cookTime = recipe['Cook Time'] || '';
     
+    // Create image element
+    let imageElement;
+    if (imageUrl) {
+        imageElement = `<img src="${imageUrl}" alt="${name}" class="recipe-image-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                       <div class="recipe-image-placeholder" style="display: none;">🍽️</div>`;
+    } else {
+        imageElement = `<div class="recipe-image-placeholder">🍽️</div>`;
+    }
+    
     card.innerHTML = `
         <div class="recipe-image">
-            🍽️
+            ${imageElement}
         </div>
         <div class="recipe-content">
             <h3 class="recipe-title">${name}</h3>
@@ -219,6 +229,7 @@ function setupDailyRecipe() {
     const name = dailyRecipe['Recipe Name'] || dailyRecipe['Name'] || 'Today\'s Special Recipe';
     const description = dailyRecipe['Description'] || dailyRecipe['Short Description'] || 'A wonderful recipe to brighten your day!';
     const url = dailyRecipe['URL'] || dailyRecipe['Link'] || '#';
+    const imageUrl = dailyRecipe['Image'] || dailyRecipe['Photo'] || dailyRecipe['Image URL'] || '';
     
     dailyTitle.textContent = name;
     dailyDescription.textContent = description;
@@ -227,6 +238,17 @@ function setupDailyRecipe() {
     if (url !== '#') {
         dailyCta.target = '_blank';
         dailyCta.rel = 'noopener noreferrer';
+    }
+    
+    // Update daily recipe image
+    const dailyImageContainer = document.querySelector('.daily-image');
+    if (imageUrl) {
+        dailyImageContainer.innerHTML = `
+            <img src="${imageUrl}" alt="${name}" class="daily-recipe-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="recipe-placeholder" style="display: none;">📸</div>
+        `;
+    } else {
+        dailyImageContainer.innerHTML = `<div class="recipe-placeholder">📸</div>`;
     }
 }
 
@@ -265,7 +287,7 @@ function clearFilters() {
     const emptyMessage = emptyState.querySelector('.empty-message');
     emptyMessage.innerHTML = `
         <h3>Generate Your Perfect Recipe</h3>
-        <p>Select your preferences above and click "Generate Recipe" to discover your next meal</p>
+        <p>Select a meal type and your preferences above to discover your next meal</p>
     `;
     
     const emptyIcon = emptyState.querySelector('.icon-placeholder');
