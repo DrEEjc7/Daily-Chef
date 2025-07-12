@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Chef - Recipe Generator</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">🍳</div>
+                <div class="site-title">Daily Chef</div>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link">Recipes</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Blog</a>
+                <a href="#" class="nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Recipe Generator</h1>
+            <p class="hero-subtitle">Discover personalized recipes that match your taste preferences and dietary needs</p>
+        </section>
+        
+        <!-- Recipe Generator Section -->
+        <section class="generator-section">
+            <h2 class="section-title">Find Your Perfect Recipe</h2>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">
+                        🍽️ Meal Type
+                    </label>
+                    <select class="filter-select" id="mealType">
+                        <option value="">Select meal type...</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Brunch">Brunch</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Snack">Snack</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Dessert">Dessert</option>
+                        <option value="Fast Food">Fast Food</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">
+                        🥩 Protein
+                    </label>
+                    <select class="filter-select" id="protein">
+                        <option value="">Select protein...</option>
+                        <option value="Chicken">Chicken</option>
+                        <option value="Beef">Beef</option>
+                        <option value="Fish">Fish</option>
+                        <option value="Pork">Pork</option>
+                        <option value="Vegetarian">Vegetarian</option>
+                        <option value="Vegan">Vegan</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">
+                        🌍 Cuisine
+                    </label>
+                    <select class="filter-select" id="cuisine">
+                        <option value="">Select cuisine...</option>
+                        <option value="Italian">Italian</option>
+                        <option value="Asian">Asian</option>
+                        <option value="Mexican">Mexican</option>
+                        <option value="American">American</option>
+                        <option value="Mediterranean">Mediterranean</option>
+                        <option value="Indian">Indian</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">
+                        ⏱️ Cook Time
+                    </label>
+                    <select class="filter-select" id="cookTime">
+                        <option value="">Select time...</option>
+                        <option value="Under 15 min">Under 15 min</option>
+                        <option value="15-30 min">15-30 min</option>
+                        <option value="30-60 min">30-60 min</option>
+                        <option value="1+ hours">1+ hours</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="generate-btn" id="generateBtn">Generate Recipe</button>
+            
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">
+                        <div class="icon-placeholder">🎲</div>
+                    </div>
+                    <div class="empty-message">
+                        <h3>Generate Your Perfect Recipe</h3>
+                        <p>Select your preferences above and click "Generate Recipe" to discover your next meal</p>
+                    </div>
+                </div>
+                
+                <!-- Recipe Results (hidden initially) -->
+                <div class="recipe-results" id="recipeResults" style="display: none;">
+                    <div class="results-header">
+                        <h3 id="resultsCount">0 recipes found</h3>
+                        <button class="shuffle-btn" id="shuffleBtn">🎲 Shuffle</button>
+                    </div>
+                    <div class="recipe-grid" id="recipeGrid">
+                        <!-- Recipe cards will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Daily Recipe Banner -->
+        <section class="daily-recipe">
+            <h2 class="banner-title">Today's Featured Recipe</h2>
+            <div class="daily-content" id="dailyContent">
+                <div class="daily-image">
+                    <div class="recipe-placeholder">📸</div>
+                </div>
+                <div class="daily-info">
+                    <h3 id="dailyTitle">Loading today's recipe...</h3>
+                    <p class="daily-description" id="dailyDescription">
+                        Discovering today's featured recipe from our collection...
+                    </p>
+                    <a href="#" class="daily-cta" id="dailyCta">Cook Today's Recipe</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading recipes...</p>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
